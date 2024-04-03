@@ -8,7 +8,7 @@
 #                                                                                   #
 #    Level: 0                                                                       #
 #    Classification: PUBLIC                                                         #
-#    Version: 24.0.5                                                                #
+#    Version: 24.0.6                                                                #
 #                                                                                   #
 #    Name: Universal Computer Logging And Operational Guidelines                    #
 #    Description:                                                                   #
@@ -17,9 +17,9 @@
 #    Created: 2024-03-29                                                            #
 #    Updated: 2024-04-03                                                            #
 #                                                                                   #
-#    SNAF: [UnCLOG24.0.5 ¦ LEVEL-0] - Universal Computer Logging and Operational    #
+#    SNAF: [UnCLOG24.0.6 ¦ LEVEL-0] - Universal Computer Logging and Operational    #
 #          Guidelines                                                               #
-#    DRL: DRL://afs/it/dpd/itdg/pdt#24.0.5                                          #
+#    DRL: DRL://afs/it/dpd/itdg/pdt#24.0.6                                          #
 #    DID: UDIS-0000000000000000000Z                                                 #
 #    Location: https://github.com/mia-kiwi/UnCLOG/                                  #
 #                                                                                   #
@@ -112,13 +112,13 @@ function Write-UnCLog {
         CallStack   = $CallStack
     }
 
-    # /!\ This block takes slows the function by around 10ms, but it's only executed once per log directory /!\
+    # /!\ This block slows down the function by around 10ms, but it's only executed once per log directory so we ballin /!\
     # Attempt to create the directory (even if it already exists, checking takes too long)
     try {
         [System.IO.Directory]::CreateDirectory($Directory) | Out-Null
     }
     catch {
-        Write-Warning "Failed to create the log directory: $_"
+        throw "Failed to create the log directory: $_"
     }
 
     try {
