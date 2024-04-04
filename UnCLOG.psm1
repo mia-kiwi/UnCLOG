@@ -8,21 +8,20 @@
 #                                                                                   #
 #    Level: 0                                                                       #
 #    Classification: PUBLIC                                                         #
-#    Version: 24.0.6                                                                #
+#    Version: 24.0.7                                                                #
 #                                                                                   #
 #    Name: Universal Computer Logging And Operational Guidelines                    #
 #    Description:                                                                   #
 #    Language: PowerShell                                                           #
 #    Contributor(s): DELANDM002                                                     #
 #    Created: 2024-03-29                                                            #
-#    Updated: 2024-04-03                                                            #
+#    Updated: 2024-04-04                                                            #
 #                                                                                   #
-#    SNAF: [UnCLOG24.0.6 ¦ LEVEL-0] - Universal Computer Logging and Operational    #
+#    SNAF: [UnCLOG24.0.7 ¦ LEVEL-0] - Universal Computer Logging and Operational    #
 #          Guidelines                                                               #
-#    DRL: DRL://afs/it/dpd/itdg/pdt#24.0.6                                          #
+#    DRL: DRL://afs/it/dpd/itdg/pdt#24.0.7                                          #
 #    DID: UDIS-0000000000000000000Z                                                 #
 #    Location: https://github.com/mia-kiwi/UnCLOG/                                  #
-#                                                                                   #
 #                                                                                   #
 #####################################################################################
 
@@ -112,21 +111,19 @@ function Write-UnCLog {
         CallStack   = $CallStack
     }
 
-    # /!\ This block slows down the function by around 10ms, but it's only executed once per log directory so we ballin /!\
-    # Attempt to create the directory (even if it already exists, checking takes too long)
-    try {
-        [System.IO.Directory]::CreateDirectory($Directory) | Out-Null
-    }
-    catch {
-        throw "Failed to create the log directory: $_"
-    }
-
     try {
         $StreamWriter = [System.IO.StreamWriter]::New("$Directory\$($Log.DateTime.Substring(0,10)).unclog", $true)
         $StreamWriter.WriteLine([Newtonsoft.Json.JsonConvert]::SerializeObject($Log))
     }
+    catch [System.IO.DirectoryNotFoundException] {
+        # The log directory doesn't exist. Create it then retry to write the log
+        [System.IO.Directory]::CreateDirectory($Directory) | Out-Null
+        
+        $StreamWriter = [System.IO.StreamWriter]::New("$Directory\$($Log.DateTime.Substring(0,10)).unclog", $true)
+        $StreamWriter.WriteLine([Newtonsoft.Json.JsonConvert]::SerializeObject($Log))
+    }
     catch {
-        Write-Warning "Failed to write to the log file for $($Log.Identifier) on $($Log.Datetime): $_"
+        Write-Warning "Failed to write to the log file for $($Log.Identifier) on $($Log.Datetime): $($_.Exception)"
     }
     finally {
         $StreamWriter.Flush()
