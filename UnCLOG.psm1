@@ -8,7 +8,7 @@
 #                                                                                                  #
 #    Level:          0                                                                             #
 #    Classification: PUBLIC                                                                        #
-#    Version:        24.0.8-B                                                                      #
+#    Version:        24.0.9                                                                        #
 #                                                                                                  #
 #    Name:           UNCLOG                                                                        #
 #    Title:          UNIVERSAL COMPUTER LOGGING AND OPERATIONAL GUIDELINES                         #
@@ -18,7 +18,7 @@
 #    Created:        2024-03-29                                                                    #
 #    Updated:        2024-04-28                                                                    #
 #                                                                                                  #
-#    SNAF:           [UNCLOG24.0.8-B ¦ LEVEL-0] - UNIVERSAL COMPUTER LOGGING AND OPERATIONAL       #
+#    SNAF:           [UNCLOG24.0.9 ¦ LEVEL-0] - UNIVERSAL COMPUTER LOGGING AND OPERATIONAL         #
 #                    GUIDELINES                                                                    #
 #    DRL:            DRL://AFS/IT/DPD/UNCLOG                                                       #
 #    DID:            UDIS-0000000000000000000Z                                                     #
