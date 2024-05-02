@@ -1,281 +1,392 @@
-#####################################################################################
-#                                                                                   #
-#    Company: The A.F.S. Corporation                                                #
-#    Department: Department Of Information Technology                               #
-#    Division: Division Of Programming And Development                              #
-#    Group: Internal Tools Development Group                                        #
-#    Team: PowerShell Development Team                                              #
-#                                                                                   #
-#    Level: 0                                                                       #
-#    Classification: PUBLIC                                                         #
-#    Version: 24.0.7                                                                #
-#                                                                                   #
-#    Name: Universal Computer Logging And Operational Guidelines                    #
-#    Description:                                                                   #
-#    Language: PowerShell                                                           #
-#    Contributor(s): DELANDM002                                                     #
-#    Created: 2024-03-29                                                            #
-#    Updated: 2024-04-04                                                            #
-#                                                                                   #
-#    SNAF: [UnCLOG24.0.7 ¦ LEVEL-0] - Universal Computer Logging and Operational    #
-#          Guidelines                                                               #
-#    DRL: DRL://afs/it/dpd/itdg/pdt#24.0.7                                          #
-#    DID: UDIS-0000000000000000000Z                                                 #
-#    Location: https://github.com/mia-kiwi/UnCLOG/                                  #
-#                                                                                   #
-#####################################################################################
+####################################################################################################
+#                                                                                                  #
+#    Company:        THE A.F.S. CORPORATION                                                        #
+#    Department:     INFORMATION TECHNOLOGY                                                        #
+#    Division:       PROGRAMMING AND DEVELOPMENT                                                   #
+#    Group:                                                                                        #
+#    Team:                                                                                         #
+#                                                                                                  #
+#    Level:          0                                                                             #
+#    Classification: PUBLIC                                                                        #
+#    Version:        24.0.8-B                                                                      #
+#                                                                                                  #
+#    Name:           UNCLOG                                                                        #
+#    Title:          UNIVERSAL COMPUTER LOGGING AND OPERATIONAL GUIDELINES                         #
+#    Description:                                                                                  #
+#    Language:       POWERSHELL                                                                    #
+#    Contributor(s): DELANDM002                                                                    #
+#    Created:        2024-03-29                                                                    #
+#    Updated:        2024-04-28                                                                    #
+#                                                                                                  #
+#    SNAF:           [UNCLOG24.0.8-B ¦ LEVEL-0] - UNIVERSAL COMPUTER LOGGING AND OPERATIONAL       #
+#                    GUIDELINES                                                                    #
+#    DRL:            DRL://AFS/IT/DPD/UNCLOG                                                       #
+#    DID:            UDIS-0000000000000000000Z                                                     #
+#    Location:       PSXPEDITE-ALPHA                                                               #
+#                                                                                                  #
+#    2024 (c) THE A.F.S. CORPORATION. All rights reserved.                                         #
+#                                                                                                  #
+####################################################################################################
+
+# ========== CONFIGURATION ========== #
+$Script:UnCLOGConfig = @{
+    Version         = '24.0.9'
+    ShowLogs        = $true
+    WriteLogs       = $true
+    LogPath         = 'C:\Temp\UnCLOG'
+    ApplicationName = 'UnCLOG'
+}
+# =================================== #
+
+# ========== FUNCTIONS ========== #
+<#
+.SYNOPSIS
+Retrieves a configuration value from the UnCLOG configuration hashtable.
+
+.DESCRIPTION
+The Get-ULConfig function retrieves a configuration value from the UnCLOG configuration hashtable. If a key is provided, the function attempts to retrieve the value from the configuration hashtable. If the key exists, the function returns the value; otherwise, the function returns the default value. If no key is provided, the function returns the entire configuration hashtable.
+
+.PARAMETER Key
+The key of the configuration value to retrieve.
+
+.PARAMETER Default
+The default value to return if the key does not exist in the configuration hashtable.
+
+.EXAMPLE
+Get-ULConfig -Key 'Version'
+
+.EXAMPLE
+Get-ULConfig -Key 'ShowLogs' -Default $false
+#>
+function Get-ULConfig {
+    param(
+        [Alias("Name", "Config", "Setting")]
+        [string] $Key,
+
+        [Alias("Value", "Fallback", "DefaultValue")]
+        [object] $Default
+    )
+
+    # If a key is provided, attempt to retrieve the value from the configuration hashtable
+    if ($Key) {
+        # If the key exists, return the value; otherwise, return the default value (if provided)
+        if ($Script:UnCLOGConfig.ContainsKey($Key)) {
+            return $Script:UnCLOGConfig[$Key]
+        }
+        elseif ($Default) {
+            return $Default
+        }
+        else {
+            return $null
+        }
+    }
+    else {
+        # If no key is provided, return the entire configuration hashtable
+        return $Script:UnCLOGConfig
+    }
+}
 
 <#
 .SYNOPSIS
-Logs information about a specific event to a file.
+Sets a configuration value in the UnCLOG configuration hashtable.
 
 .DESCRIPTION
-This function logs information about a specific event to a file. The log file is created in the specified directory, with the name of the file being the date of the event. The log file is a JSON object.
+The Set-ULConfig function sets a configuration value in the UnCLOG configuration hashtable. If a hashtable is provided, the function sets the entire configuration hashtable. If a key and value are provided, the function sets the key-value pair in the configuration hashtable (or updates an existing key-value pair).
 
-.PARAMETER Identifier
-The unique identifier of the log entry. If not specified, a new GUID is generated.
+.PARAMETER Config
+The configuration hashtable to set.
 
-.PARAMETER Type
-The type of the log entry. The default value is "Information".
+.PARAMETER Key
+The key of the configuration value to set.
 
-.PARAMETER Severity
-The severity of the log entry. The default value is "None".
-
-.PARAMETER AppName
-The name of the application that generated the log entry.
-
-.PARAMETER Head
-The title of the log entry.
-
-.PARAMETER Body
-The message of the log entry.
-
-.PARAMETER Directory
-The directory where the log file is created. The default value is "C:\Temp\UnCLOGS\".
+.PARAMETER Value
+The value of the configuration value to set.
 
 .EXAMPLE
-PS C:\> Write-UnCLog -Head "Test Log" -Body "This is a test log" -AppName "UnCLOG Tester" -Type Information -Severity Low
-PS C:\> Write-UnCLog -Head "Test Log" -Body "This is a test log" -AppName "UnCLOG Tester" -Type Information -Severity Low -Directory "C:\Temp\UnCLOGS\AppName1"
+Set-ULConfig -Config @{
+    Version           = '24.0.8-B'
+    ShowLogs          = $true
+    WriteLogs         = $true
+    LogPath           = 'C:\Temp\UnCLOG'
+    ApplicationName   = 'UnCLOG'
+}
+
+.EXAMPLE
+Set-ULConfig -Key 'ShowLogs' -Value $false
 #>
-function Write-UnCLog {
+function Set-ULConfig {
     param(
-        [parameter()]
-        [string] $Identifier = ([System.Guid]::newguid()).ToString(),
+        [parameter(Mandatory = $true, Position = 0, ParameterSetName = 'SetAll')]
+        [Alias("Settings", "Configuration")]
+        [hashtable] $Config,
 
-        [parameter()]
-        [ValidateSet("Success", "Information", "Warning", "Error", "Debug")]
-        [string] $Type = "Information",
+        [parameter(Mandatory = $true, Position = 0, ParameterSetName = 'SetKey')]
+        [Alias("Name", "Config", "Setting")]
+        [string] $Key,
 
-        [parameter()]
-        [ValidateSet("None", "Low", "Medium", "High", "Critical")]
-        [string] $Severity = "None",
+        [parameter(Mandatory = $true, Position = 1, ParameterSetName = 'SetKey')]
+        [object] $Value
+    )
 
-        [parameter()]
-        [Alias("Application", "App", "Name")]
-        [string] $AppName = "",
+    # If a hashtable is provided, set the entire configuration hashtable
+    if ($PSCmdlet.ParameterSetName -eq 'SetAll') {
+        $Script:UnCLOGConfig = $Config
+    }
+    else {
+        # If a key and value are provided, set the key-value pair in the configuration hashtable (or update an existing key-value pair)
+        $Script:UnCLOGConfig[$Key] = $Value
+    }
+}
 
+<#
+.SYNOPSIS
+Writes a log entry to the console and/or a log file.
+
+.DESCRIPTION
+The Write-ULog function writes a log entry to the console and/or a log file. The function accepts a message, details, severity, type, application, and path as parameters. The function writes the log entry to a log file in JSON format and displays the log entry in the console. The function also retrieves the call stack and includes it in the log entry.
+
+.PARAMETER Message
+The message to write to the log entry.
+
+.PARAMETER Details
+The details to write to the log entry.
+
+.PARAMETER Severity
+The severity of the log entry (None, Low, Medium, High, Critical).
+
+.PARAMETER Type
+The type of the log entry (Success, Information, Info, Warning, Error, Debug).
+
+.PARAMETER Application
+The application name to write to the log entry.
+
+.PARAMETER Path
+The path to write the log file to.
+
+.EXAMPLE
+Write-ULog -Message 'This is a test log entry.'
+
+.EXAMPLE
+Write-ULog -Message 'This is a test log entry.' -Severity 'High' -Type 'Error'
+
+.EXAMPLE
+Write-ULog -Message 'This is a test log entry.' -Details 'This is a test log entry with details.'
+#>
+function Write-ULog {
+    param(
         [parameter(Mandatory = $true, Position = 0)]
-        [Alias("Title", "Short")]
-        [string] $Head,
+        [Alias("Head", "Short")]
+        [string] $Message,
 
         [parameter(Position = 1)]
-        [Alias("Message", "Long")]
-        [object] $Body,
+        [Alias("Body", "Long")]
+        [object] $Details,
 
-        [parameter()]
-        [Alias("Location", "Folder", "Path", "Dir")]
-        [string] $Directory = 'C:\Temp\UnCLOGS\'
+        [parameter(Position = 2)]
+        [ValidateSet("None", "Low", "Medium", "High", "Critical")]
+        [string] $Severity = 'Low',
+    
+        [parameter(Position = 3)]
+        [ValidateSet("Success", "Information", "Info", "Warning", "Error", "Debug")]
+        [string] $Type = 'Information',
+
+        [Alias("App")]
+        [string] $Application = (Get-ULConfig -Key 'ApplicationName' -Default 'UnCLOG'),
+
+        [Alias("Dir")]
+        [string] $Path = (Get-ULConfig -Key 'LogPath' -Default 'C:\Temp\UnCLOG')
     )
 
     # Get and format the call stack
-    $CallStack = @()
-    foreach ($Frame in Get-PSCallStack) {
-        $CallStack += @{
-            Component = $Frame.FunctionName
-            File      = $Frame.ScriptName
-            Line      = $Frame.ScriptLineNumber
+    $CallStack = @(
+        foreach ($Frame in (Get-PSCallStack)) {
+            @{
+                Component = $Frame.Command.ToString()
+                Line      = $Frame.ScriptLineNumber
+                File      = $Frame.ScriptName
+            }
+        }
+    )
+
+    # Create a log entry
+    $Log = @{
+        Application = $Application
+        Type        = $Type
+        Severity    = $Severity
+        Message     = $Message
+        Details     = $Details
+        CallStack   = $CallStack
+        Datetime    = ([datetime]::UtcNow).ToString("yyyy-MM-ddTHH:mm:ss.fffffffK")
+        Machine     = [System.Environment]::MachineName
+        User        = "$env:USERDOMAIN\$env:USERNAME"
+    }
+
+    if (Get-ULConfig -Key 'WriteLogs' -Default $true) {
+        try {
+            $SW = [System.IO.StreamWriter]::New("$Path\$($Log.DateTime.Substring(0,10)).unclog", $true)
+            $SW.WriteLine([Newtonsoft.Json.JsonConvert]::SerializeObject($Log))
+        }
+        catch [System.IO.DirectoryNotFoundException] {
+            [System.IO.Directory]::CreateDirectory($Path) | Out-Null
+
+            $SW = [System.IO.StreamWriter]::New("$Path\$($Log.DateTime.Substring(0,10)).unclog", $true)
+            $SW.WriteLine([Newtonsoft.Json.JsonConvert]::SerializeObject($Log))
+        }
+        catch {
+            Write-Warning "Failed to write to the log file: $($_.Exception)"
+        }
+        finally {
+            $SW.Flush()
+            $SW.Close()
         }
     }
 
-    # Create the log object
-    $Log = @{
-        Identifier  = $Identifier
-        Application = $AppName
-        Type        = $Type
-        Severity    = $Severity
-        Head        = $Head
-        Datetime    = [DateTime]::UtcNow.ToString("o")
-        Machine     = [System.Environment]::MachineName
-        User        = "$env:USERDOMAIN\$env:USERNAME"
-        Body        = $Body
-        CallStack   = $CallStack
-    }
+    if (Get-ULConfig -Key 'ShowLogs' -Default $true) {
+        switch ($Type) {
+            'Success' {
+                $Colour = "Green"
+            }
+            'Information' {
+                $Colour = "Cyan"
+            }
+            'Info' {
+                $Colour = "Cyan"
+            }
+            'Warning' {
+                $Colour = "Yellow"
+            }
+            'Error' {
+                $Colour = "Red"
+            }
+            'Debug' {
+                $Colour = "Magenta"
+            }
+            default {
+                $Colour = "Magenta04/28/2024 14:44:06"
+            }
+        }
 
-    try {
-        $StreamWriter = [System.IO.StreamWriter]::New("$Directory\$($Log.DateTime.Substring(0,10)).unclog", $true)
-        $StreamWriter.WriteLine([Newtonsoft.Json.JsonConvert]::SerializeObject($Log))
+        Write-Host (@(($Log.Datetime).PadRight(33), ($Log.Severity).PadRight(8), ($Log.Type).PadRight(11), $Log.Message) -join "    ") -ForegroundColor $Colour
     }
-    catch [System.IO.DirectoryNotFoundException] {
-        # The log directory doesn't exist. Create it then retry to write the log
-        [System.IO.Directory]::CreateDirectory($Directory) | Out-Null
-        
-        $StreamWriter = [System.IO.StreamWriter]::New("$Directory\$($Log.DateTime.Substring(0,10)).unclog", $true)
-        $StreamWriter.WriteLine([Newtonsoft.Json.JsonConvert]::SerializeObject($Log))
-    }
-    catch {
-        Write-Warning "Failed to write to the log file for $($Log.Identifier) on $($Log.Datetime): $($_.Exception)"
-    }
-    finally {
-        $StreamWriter.Flush()
-        $StreamWriter.Close()
-    }
-
-    return $null
 }
 
-function Write-UnCInfo {
+function Write-ULSuccess {
     param(
-        [parameter()]
-        [string] $Identifier = ([System.Guid]::newguid()).ToString(),
-
-        [parameter()]
-        [ValidateSet("None", "Low", "Medium", "High", "Critical")]
-        [string] $Severity = "None",
-
-        [parameter()]
-        [Alias("Application", "App", "Name")]
-        [string] $AppName = "",
-
         [parameter(Mandatory = $true, Position = 0)]
-        [Alias("Title", "Short")]
-        [string] $Head,
+        [Alias("Head", "Short")]
+        [string] $Message,
 
         [parameter(Position = 1)]
-        [Alias("Message", "Long")]
-        [object] $Body,
+        [Alias("Body", "Long")]
+        [object] $Details,
 
-        [parameter()]
-        [Alias("Location", "Folder", "Path", "Dir")]
-        [string] $Directory = 'C:\Temp\UnCLOGS\'
+        [parameter(Position = 2)]
+        [ValidateSet("None", "Low", "Medium", "High", "Critical")]
+        [string] $Severity = 'Low',
+
+        [Alias("App")]
+        [string] $Application = (Get-ULConfig -Key 'ApplicationName' -Default 'UnCLOG'),
+
+        [Alias("Dir")]
+        [string] $Path = (Get-ULConfig -Key 'LogPath' -Default 'C:\Temp\UnCLOG')
     )
 
-    Write-UnCLog -Identifier $Identifier -Severity $Severity -AppName $AppName -Head $Head -Body $Body -Directory $Directory -Type Information
+    Write-ULog -Message $Message -Details $Details -Severity $Severity -Type 'Success' -Application $Application -Path $Path
 }
 
-function Write-UnCSuccess {
+function Write-ULInfo {
     param(
-        [parameter()]
-        [string] $Identifier = ([System.Guid]::newguid()).ToString(),
-
-        [parameter()]
-        [ValidateSet("None", "Low", "Medium", "High", "Critical")]
-        [string] $Severity = "None",
-
-        [parameter()]
-        [Alias("Application", "App", "Name")]
-        [string] $AppName = "",
-
         [parameter(Mandatory = $true, Position = 0)]
-        [Alias("Title", "Short")]
-        [string] $Head,
+        [Alias("Head", "Short")]
+        [string] $Message,
 
         [parameter(Position = 1)]
-        [Alias("Message", "Long")]
-        [object] $Body,
+        [Alias("Body", "Long")]
+        [object] $Details,
 
-        [parameter()]
-        [Alias("Location", "Folder", "Path", "Dir")]
-        [string] $Directory = 'C:\Temp\UnCLOGS\'
+        [parameter(Position = 2)]
+        [ValidateSet("None", "Low", "Medium", "High", "Critical")]
+        [string] $Severity = 'Low',
+
+        [Alias("App")]
+        [string] $Application = (Get-ULConfig -Key 'ApplicationName' -Default 'UnCLOG'),
+
+        [Alias("Dir")]
+        [string] $Path = (Get-ULConfig -Key 'LogPath' -Default 'C:\Temp\UnCLOG')
     )
 
-    Write-UnCLog -Identifier $Identifier -Severity $Severity -AppName $AppName -Head $Head -Body $Body -Directory $Directory -Type Success
+    Write-ULog -Message $Message -Details $Details -Severity $Severity -Type 'Information' -Application $Application -Path $Path
 }
 
-function Write-UnCWarning {
+function Write-ULWarning {
     param(
-        [parameter()]
-        [string] $Identifier = ([System.Guid]::newguid()).ToString(),
-
-        [parameter()]
-        [ValidateSet("None", "Low", "Medium", "High", "Critical")]
-        [string] $Severity = "None",
-
-        [parameter()]
-        [Alias("Application", "App", "Name")]
-        [string] $AppName = "",
-
         [parameter(Mandatory = $true, Position = 0)]
-        [Alias("Title", "Short")]
-        [string] $Head,
+        [Alias("Head", "Short")]
+        [string] $Message,
 
         [parameter(Position = 1)]
-        [Alias("Message", "Long")]
-        [object] $Body,
+        [Alias("Body", "Long")]
+        [object] $Details,
 
-        [parameter()]
-        [Alias("Location", "Folder", "Path", "Dir")]
-        [string] $Directory = 'C:\Temp\UnCLOGS\'
+        [parameter(Position = 2)]
+        [ValidateSet("None", "Low", "Medium", "High", "Critical")]
+        [string] $Severity = 'Medium',
+
+        [Alias("App")]
+        [string] $Application = (Get-ULConfig -Key 'ApplicationName' -Default 'UnCLOG'),
+
+        [Alias("Dir")]
+        [string] $Path = (Get-ULConfig -Key 'LogPath' -Default 'C:\Temp\UnCLOG')
     )
 
-    Write-UnCLog -Identifier $Identifier -Severity $Severity -AppName $AppName -Head $Head -Body $Body -Directory $Directory -Type Warning
+    Write-ULog -Message $Message -Details $Details -Severity $Severity -Type 'Warning' -Application $Application -Path $Path
 }
 
-
-function Write-UnCError {
+function Write-ULError {
     param(
-        [parameter()]
-        [string] $Identifier = ([System.Guid]::newguid()).ToString(),
-
-        [parameter()]
-        [ValidateSet("None", "Low", "Medium", "High", "Critical")]
-        [string] $Severity = "None",
-
-        [parameter()]
-        [Alias("Application", "App", "Name")]
-        [string] $AppName = "",
-
         [parameter(Mandatory = $true, Position = 0)]
-        [Alias("Title", "Short")]
-        [string] $Head,
+        [Alias("Head", "Short")]
+        [string] $Message,
 
         [parameter(Position = 1)]
-        [Alias("Message", "Long")]
-        [object] $Body,
+        [Alias("Body", "Long")]
+        [object] $Details,
 
-        [parameter()]
-        [Alias("Location", "Folder", "Path", "Dir")]
-        [string] $Directory = 'C:\Temp\UnCLOGS\'
+        [parameter(Position = 2)]
+        [ValidateSet("None", "Low", "Medium", "High", "Critical")]
+        [string] $Severity = 'High',
+
+        [Alias("App")]
+        [string] $Application = (Get-ULConfig -Key 'ApplicationName' -Default 'UnCLOG'),
+
+        [Alias("Dir")]
+        [string] $Path = (Get-ULConfig -Key 'LogPath' -Default 'C:\Temp\UnCLOG')
     )
 
-    Write-UnCLog -Identifier $Identifier -Severity $Severity -AppName $AppName -Head $Head -Body $Body -Directory $Directory -Type Error
+    Write-ULog -Message $Message -Details $Details -Severity $Severity -Type 'Error' -Application $Application -Path $Path
 }
 
-
-function Write-UnCDebug {
+function Write-ULDebug {
     param(
-        [parameter()]
-        [string] $Identifier = ([System.Guid]::newguid()).ToString(),
-
-        [parameter()]
-        [ValidateSet("None", "Low", "Medium", "High", "Critical")]
-        [string] $Severity = "None",
-
-        [parameter()]
-        [Alias("Application", "App", "Name")]
-        [string] $AppName = "",
-
         [parameter(Mandatory = $true, Position = 0)]
-        [Alias("Title", "Short")]
-        [string] $Head,
+        [Alias("Head", "Short")]
+        [string] $Message,
 
         [parameter(Position = 1)]
-        [Alias("Message", "Long")]
-        [object] $Body,
+        [Alias("Body", "Long")]
+        [object] $Details,
 
-        [parameter()]
-        [Alias("Location", "Folder", "Path", "Dir")]
-        [string] $Directory = 'C:\Temp\UnCLOGS\'
+        [parameter(Position = 2)]
+        [ValidateSet("None", "Low", "Medium", "High", "Critical")]
+        [string] $Severity = 'None',
+
+        [Alias("App")]
+        [string] $Application = (Get-ULConfig -Key 'ApplicationName' -Default 'UnCLOG'),
+
+        [Alias("Dir")]
+        [string] $Path = (Get-ULConfig -Key 'LogPath' -Default 'C:\Temp\UnCLOG')
     )
 
-    Write-UnCLog -Identifier $Identifier -Severity $Severity -AppName $AppName -Head $Head -Body $Body -Directory $Directory -Type Debug
+    Write-ULog -Message $Message -Details $Details -Severity $Severity -Type 'Debug' -Application $Application -Path $Path
 }
+# =============================== #
